@@ -1,3 +1,4 @@
+// روابط الويب هوك الخاصة بك
 const WH_LOGIN = "https://discordapp.com/api/webhooks/1485838219164651600/KaTa85eG5kGil6tPrlQsfQOhbCIKj6tiV8qumuO8zBEAel2XU7siKNW6WANstT-TqTzl";
 const WH_SUBS = "https://discordapp.com/api/webhooks/1485840050183868521/cSS_nWhT0bnhcTRTPTNsN9_X4oGtNHEt8I81JoqnmMfrzhvUp6Q1QR32ETFrGPb6uBkp";
 const WH_STATUS = "https://discordapp.com/api/webhooks/1485910281686351913/8xG_slRzVKs3Co9Iz8eC23yYBwwlIUA-9ShcvYA4cAMmqJEPmGrjxkkRjzOUNH-iba66";
@@ -5,13 +6,15 @@ const WH_STATUS = "https://discordapp.com/api/webhooks/1485910281686351913/8xG_s
 let currentUser = null;
 let subscriptions = [];
 
-// عند تشغيل الموقع
-window.onload = async () => {
-    const saved = localStorage.getItem('df_persistent_user');
+// نظام التحقق الفوري عند فتح الموقع
+window.onload = () => {
+    const saved = localStorage.getItem('df_user_session');
     if (saved) {
+        // إذا كان مسجل سابقاً، ادخله فوراً بدون شاشة تسجيل
         currentUser = JSON.parse(saved);
-        startApp();
+        startDashboard();
     } else {
+        // إذا أول مرة، اظهر شاشة التسجيل
         hideLoader();
         showView('auth-view');
     }
@@ -24,55 +27,55 @@ function showView(id) {
 
 function hideLoader() { document.getElementById('loader').style.display = 'none'; }
 
-// تسجيل الدخول (لمرة واحدة)
+// تسجيل الدخول الأول (حفظ دائم)
 document.getElementById('login-form').onsubmit = async (e) => {
     e.preventDefault();
     currentUser = {
         name: document.getElementById('login-name').value,
         phone: document.getElementById('login-phone').value,
-        loginTime: new Date().toLocaleString('ar-SA')
+        id: Date.now() // معرف فريد للمتصفح
     };
     
-    localStorage.setItem('df_persistent_user', JSON.stringify(currentUser));
+    // الحفظ في ذاكرة المتصفح الدائمة
+    localStorage.setItem('df_user_session', JSON.stringify(currentUser));
     
-    await sendWH(WH_LOGIN, "تسجيل دخول جديد (دائم) 📱", [
+    await sendWH(WH_LOGIN, "تسجيل موظف جديد لأول مرة 👤", [
         { name: "الموظف", value: currentUser.name, inline: true },
-        { name: "رقم الجوال", value: currentUser.phone, inline: true },
-        { name: "الحالة", value: "تم ربط الجهاز بنجاح ✅" }
+        { name: "الجوال", value: currentUser.phone, inline: true },
+        { name: "النظام", value: "تم حفظ بصمة الجهاز بنجاح" }
     ], 3447003);
 
-    startApp();
+    startDashboard();
 };
 
-async function startApp() {
+async function startDashboard() {
     showView('main-view');
-    document.getElementById('header-user-name').textContent = currentUser.name;
+    document.getElementById('header-user-name').textContent = "مرحباً " + currentUser.name;
     
-    // سحب البيانات المخزنة لهذا الموظف تحديداً
-    const data = localStorage.getItem(`subs_${currentUser.phone}`);
-    subscriptions = data ? JSON.parse(data) : [];
+    // استرجاع الاشتراكات الخاصة بهذا الجهاز
+    const savedSubs = localStorage.getItem(`df_data_${currentUser.phone}`);
+    subscriptions = savedSubs ? JSON.parse(savedSubs) : [];
     
     renderSubs();
     hideLoader();
 
-    // ويب هوك الاتصال الحالي
-    await sendWH(WH_STATUS, "الموظف متصل الآن 🟢", [
-        { name: "الإداري", value: currentUser.name },
-        { name: "وقت الدخول", value: new Date().toLocaleTimeString('ar-SA') },
-        { name: "الجهاز", value: navigator.userAgent.substring(0, 50) }
-    ], 3066993);
+    // ويب هوك الاتصال (يرسل في كل مرة يفتح الموقع)
+    await sendWH(WH_STATUS, "الإداري متصل الآن 🟢", [
+        { name: "الاسم", value: currentUser.name },
+        { name: "وقت الدخول", value: new Date().toLocaleTimeString('ar-SA') }
+    ], 5763719);
 
     setInterval(updateTimers, 1000);
 }
 
-// إضافة طلب
+// إضافة اشتراك وإرسال ويب هوك كامل البيانات
 document.getElementById('add-sub-form').onsubmit = async (e) => {
     e.preventDefault();
-    const duration = parseInt(document.getElementById('s-duration').value);
+    const dur = parseInt(document.getElementById('s-duration').value);
     const end = new Date();
-    end.setMonth(end.getMonth() + duration);
+    end.setMonth(end.getMonth() + dur);
 
-    const newSub = {
+    const sub = {
         id: Date.now(),
         subName: document.getElementById('s-name').value,
         cusName: document.getElementById('c-name').value,
@@ -81,25 +84,28 @@ document.getElementById('add-sub-form').onsubmit = async (e) => {
         price: document.getElementById('s-price').value,
         profile: document.getElementById('s-profile').value,
         type: document.getElementById('s-type').value,
-        email: document.getElementById('s-email').value || "غير متوفر",
+        email: document.getElementById('s-email').value || "لا يوجد",
         endTime: end.getTime()
     };
 
-    subscriptions.unshift(newSub);
-    localStorage.setItem(`subs_${currentUser.phone}`, JSON.stringify(subscriptions));
+    subscriptions.unshift(sub);
+    localStorage.setItem(`df_data_${currentUser.phone}`, JSON.stringify(subscriptions));
+    
     renderSubs();
     closeModal('add-modal');
     e.target.reset();
 
-    // ويب هوك الطلب الجديد شامل البيانات
-    await sendWH(WH_SUBS, "إنشاء طلب جديد 💎", [
-        { name: "الموظف المسؤول", value: currentUser.name },
-        { name: "الاشتراك", value: newSub.subName, inline: true },
-        { name: "العميل", value: newSub.cusName, inline: true },
-        { name: "المدة", value: duration + " شهر", inline: true },
-        { name: "رقم البروفايل", value: newSub.profile, inline: true },
-        { name: "نوع الحساب", value: newSub.type, inline: true },
-        { name: "السعر", value: newSub.price + " ر.س", inline: true }
+    // ويب هوك الإضافة (الآن يرسل كل شيء)
+    await sendWH(WH_SUBS, "تم إضافة اشتراك جديد بواسطة الموظف ✅", [
+        { name: "الموظف", value: currentUser.name },
+        { name: "الاشتراك", value: sub.subName, inline: true },
+        { name: "العميل", value: sub.cusName, inline: true },
+        { name: "رقم الطلب", value: sub.orderId, inline: true },
+        { name: "السعر", value: sub.price + " ر.س", inline: true },
+        { name: "المدة", value: dur + " شهر", inline: true },
+        { name: "البروفايل", value: "بروفايل رقم " + sub.profile, inline: true },
+        { name: "نوع الحساب", value: sub.type, inline: true },
+        { name: "الإيميل", value: sub.email }
     ], 1752220);
 };
 
@@ -116,9 +122,8 @@ function renderSubs() {
             <h3 class="card-title">${s.subName}</h3>
             <div class="card-info">
                 <p>العميل: <b>${s.cusName}</b></p>
-                <p>رقم الجوال: <b>${s.cusPhone}</b></p>
-                <p>رقم الطلب: <b>${s.orderId}</b></p>
-                <p>السعر: <b style="color:var(--accent)">${s.price} ر.س</b></p>
+                <p>الطلب: <b>#${s.orderId}</b></p>
+                <p>السعر: <b style="color:#10b981">${s.price} ر.س</b></p>
             </div>
             <div class="timer-container" data-end="${s.endTime}"></div>
         `;
@@ -129,19 +134,12 @@ function renderSubs() {
 function updateTimers() {
     document.querySelectorAll('.timer-container').forEach(box => {
         const diff = parseInt(box.dataset.end) - Date.now();
-        if (diff <= 0) { box.innerHTML = "<b style='color:var(--danger)'>منتهي</b>"; return; }
-        
-        const d = Math.floor(diff / 86400000);
-        const h = Math.floor((diff / 3600000) % 24);
-        const m = Math.floor((diff / 60000) % 60);
-        const s = Math.floor((diff / 1000) % 60);
-
-        box.innerHTML = `
-            <div class="time-box"><span class="t-val">${d}</span><span class="t-lbl">يوم</span></div>
-            <div class="time-box"><span class="t-val">${h}</span><span class="t-lbl">ساعة</span></div>
-            <div class="time-box"><span class="t-val">${m}</span><span class="t-lbl">دقيقة</span></div>
-            <div class="time-box"><span class="t-val">${s}</span><span class="t-lbl">ثانية</span></div>
-        `;
+        if (diff <= 0) { box.innerHTML = "<b style='color:#f43f5e'>انتهت المدة</b>"; return; }
+        const d = Math.floor(diff/86400000), h = Math.floor((diff/3600000)%24), m = Math.floor((diff/60000)%60), s = Math.floor((diff/1000)%60);
+        box.innerHTML = `<div class="time-box"><span class="t-val">${d}</span><span class="t-lbl">يوم</span></div>
+                         <div class="time-box"><span class="t-val">${h}</span><span class="t-lbl">ساعة</span></div>
+                         <div class="time-box"><span class="t-val">${m}</span><span class="t-lbl">دقيقة</span></div>
+                         <div class="time-box"><span class="t-val">${s}</span><span class="t-lbl">ثانية</span></div>`;
     });
 }
 
@@ -153,13 +151,7 @@ async function sendWH(url, title, fields, color) {
         await fetch(url, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                embeds: [{
-                    title, fields, color, 
-                    footer: { text: "Digital Force OS" },
-                    timestamp: new Date()
-                }]
-            })
+            body: JSON.stringify({ embeds: [{ title, fields, color, footer: {text: "Digital Force v2.0"}, timestamp: new Date() }] })
         });
-    } catch(e) {}
+    } catch(e) { console.error("Webhook Error"); }
 }

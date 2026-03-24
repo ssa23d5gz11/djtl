@@ -1,136 +1,99 @@
-// --- إعدادات الربط السحابي (المفتاح الخاص بك) ---
+// --- إعدادات الربط السحابي (من صورتك) ---
 const MASTER_KEY = "$2a$10$7zecodA9NGZ0ZnvpBl/toeVivas2Yaz9iRu6QZ94lr/1aq1s1C4cu";
-const BIN_ID = "65fc068e2662a24a873c3686"; // ملاحظة: يفضل إنشاء BIN جديد ووضع رقمه هنا لتجنب التداخل
+const BIN_ID = "69c24c76aa77b81da913b2f7"; // رقم الـ Bin اللي في صورتك
 const WH_SUBS = "https://discordapp.com/api/webhooks/1485840050183868521/cSS_nWhT0bnhcTRTPTNsN9_X4oGtNHEt8I81JoqnmMfrzhvUp6Q1QR32ETFrGPb6uBkp";
 
-// --- قائمة الموظفين المعتمدين (3 فقط) ---
-const ALLOWED_USERS = [
-    { name: "سامر", phone: "0500000000" },
-    { name: "محمد", phone: "0511111111" },
-    { name: "علي", phone: "0522222222" }
-]; // غير الأرقام والأسماء حسب موظفينك
-
 let currentUser = null;
-let subscriptions = [];
 let allCloudData = {};
 
-window.onload = async () => {
-    const session = localStorage.getItem('df_cloud_session');
-    if (session) {
-        currentUser = JSON.parse(session);
-        await syncWithCloud();
-        startApp();
-    } else {
-        hideLoader();
-        showView('auth-view');
-    }
-};
+// 1. تسجيل الدخول والتحقق من الرقم
+async function login() {
+    const name = document.getElementById('login-name').value;
+    const phone = document.getElementById('login-phone').value;
 
-async function syncWithCloud() {
+    if(!name || !phone) return alert("ادخل بياناتك كاملة");
+
     try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
             headers: { "X-Master-Key": MASTER_KEY }
         });
         const json = await res.json();
-        allCloudData = json.record || {};
-        if (currentUser && allCloudData[currentUser.phone]) {
-            subscriptions = allCloudData[currentUser.phone];
+        allCloudData = json.record;
+
+        // التحقق: هل الرقم موجود في الـ Bin اللي بالصورة؟
+        if (allCloudData.hasOwnProperty(phone)) {
+            currentUser = { name, phone };
+            localStorage.setItem('df_session', JSON.stringify(currentUser));
+            startDashboard();
+        } else {
+            alert("عذراً، هذا الرقم غير مسموح له بالدخول للسحابة.");
         }
-    } catch (e) { console.error("Cloud Sync Failed"); }
-}
-
-async function saveToCloud() {
-    try {
-        allCloudData[currentUser.phone] = subscriptions;
-        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-            method: 'PUT',
-            headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-            body: JSON.stringify(allCloudData)
-        });
-    } catch (e) { console.error("Cloud Save Failed"); }
-}
-
-document.getElementById('login-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('login-name').value;
-    const phone = document.getElementById('login-phone').value;
-
-    // التحقق من أن الشخص من ضمن الـ 3 المعتمدين
-    const isAllowed = ALLOWED_USERS.find(u => u.phone === phone && u.name === name);
-    
-    if (!isAllowed) {
-        alert("عذراً، هذا الحساب غير مسجل في قائمة الموظفين المعتمدين.");
-        return;
+    } catch (e) {
+        alert("خطأ في الاتصال بالسحابة، تأكد من مفتاح الـ API");
     }
-
-    document.getElementById('loader').style.display = 'flex';
-    currentUser = { name, phone };
-    localStorage.setItem('df_cloud_session', JSON.stringify(currentUser));
-    
-    await syncWithCloud();
-    startApp();
-};
-
-function startApp() {
-    hideLoader();
-    showView('main-view');
-    document.getElementById('header-user-name').textContent = "مرحباً " + currentUser.name;
-    renderSubs();
-    setInterval(updateTimers, 1000);
 }
 
-document.getElementById('add-sub-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const dur = parseInt(document.getElementById('s-duration').value);
+// 2. إضافة اشتراك وحفظه فوراً في السحابة
+async function addSubscription() {
     const sub = {
         id: Date.now(),
-        subName: document.getElementById('s-name').value,
-        cusName: document.getElementById('c-name').value,
-        cusPhone: document.getElementById('c-phone').value,
-        orderId: document.getElementById('c-order').value,
+        name: document.getElementById('s-name').value,
+        customer: document.getElementById('c-name').value,
         price: document.getElementById('s-price').value,
-        profile: document.getElementById('s-profile').value,
-        type: document.getElementById('s-type').value,
-        endTime: new Date().setMonth(new Date().getMonth() + dur)
+        addedBy: currentUser.name
     };
 
-    subscriptions.unshift(sub);
+    // إضافة الاشتراك للموظف المعين في السحابة
+    allCloudData[currentUser.phone].unshift(sub);
+
+    // تحديث السحابة (PUT) لضمان عدم ضياع البيانات
+    await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+        method: 'PUT',
+        headers: { 
+            "Content-Type": "application/json", 
+            "X-Master-Key": MASTER_KEY 
+        },
+        body: JSON.stringify(allCloudData)
+    });
+
     renderSubs();
-    closeModal('add-modal');
-    await saveToCloud(); // حفظ فوري في السحابة بمفتاحك الخاص
+    alert("تم الحفظ في السحابة بنجاح ✅");
     
     // ويب هوك ديسكورد
     fetch(WH_SUBS, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ embeds: [{ title: "طلب جديد سحابي ✅", fields: [
-            {name:"الموظف", value:currentUser.name}, {name:"العميل", value:sub.cusName}, {name:"السعر", value:sub.price}
-        ], color: 1752220 }]})
+        body: JSON.stringify({
+            embeds: [{
+                title: "إضافة سحابية جديدة ☁️",
+                fields: [
+                    { name: "الموظف", value: currentUser.name },
+                    { name: "الاشتراك", value: sub.name },
+                    { name: "السعر", value: sub.price + " ر.س" }
+                ],
+                color: 3447003
+            }]
+        })
     });
-};
+}
 
+// 3. عرض الاشتراكات
 function renderSubs() {
-    const cont = document.getElementById('subs-container');
-    cont.innerHTML = '';
-    subscriptions.forEach(s => {
-        const div = document.createElement('div');
-        div.className = 'sub-card';
-        div.innerHTML = `<h3>${s.subName}</h3><p>العميل: ${s.cusName}</p><p>الطلب: #${s.orderId}</p>
-                         <div class="timer-container" data-end="${s.endTime}"></div>`;
-        cont.appendChild(div);
+    const list = document.getElementById('subs-list');
+    list.innerHTML = "";
+    const mySubs = allCloudData[currentUser.phone] || [];
+    mySubs.forEach(s => {
+        list.innerHTML += `
+            <div style="background:#161b22; padding:15px; border-radius:10px; margin-top:10px; border-right:4px solid #58a6ff">
+                <b>📦 ${s.name}</b><br>
+                <small>العميل: ${s.customer} | السعر: ${s.price}</small>
+            </div>`;
     });
 }
 
-function updateTimers() {
-    document.querySelectorAll('.timer-container').forEach(box => {
-        const diff = new Date(parseInt(box.dataset.end)) - Date.now();
-        if (diff <= 0) { box.innerHTML = "منتهي"; return; }
-        const d = Math.floor(diff/86400000), h = Math.floor((diff/3600000)%24), m = Math.floor((diff/60000)%60);
-        box.innerHTML = `<span>باقي: ${d} يوم و ${h} ساعة</span>`;
-    });
+function startDashboard() {
+    document.getElementById('auth-view').style.display = 'none';
+    document.getElementById('main-view').style.display = 'block';
+    document.getElementById('welcome-msg').innerText = "مرحباً " + currentUser.name;
+    renderSubs();
 }
-
-function showView(id) { document.getElementById(id).style.display = 'block'; }
-function hideLoader() { document.getElementById('loader').style.display = 'none'; }
-function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }

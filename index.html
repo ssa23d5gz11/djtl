@@ -3,192 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Digital Force Cloud v3</title>
+    <title>Digital Force | نظام المؤسس</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --bg: #0d1117; --card: #161b22; --primary: #58a6ff; --accent: #238636; --text: #c9d1d9; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo', sans-serif; }
-        body { background: var(--bg); color: var(--text); direction: rtl; overflow-x: hidden; }
-        
-        /* شاشة التحميل */
-        .loader-wrapper { position:fixed; inset:0; background:var(--bg); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:15px; }
-        .loader { width:40px; height:40px; border:3px solid #30363d; border-top-color:var(--primary); border-radius:50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform:rotate(360deg); } }
-
-        .container { width: 92%; max-width: 450px; margin: 0 auto; padding: 20px 0; }
-        .view { display: none; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* شاشة الدخول */
-        .auth-card { text-align: center; padding-top: 50px; }
-        .logo-icon { font-size: 4rem; color: var(--primary); margin-bottom: 20px; }
-        input, select { width: 100%; padding: 14px; margin: 10px 0; background: var(--card); border: 1px solid #30363d; border-radius: 10px; color: white; outline: none; }
-        .btn-primary { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; margin-top: 10px; }
-
-        /* لوحة التحكم */
-        .header { background: var(--card); padding: 20px; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .user-box { display: flex; align-items: center; gap: 10px; }
-        .avatar { width: 40px; height: 40px; background: #30363d; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); }
-        .btn-add { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); color: white; border: none; font-size: 1.2rem; cursor: pointer; }
-
-        /* كروت الاشتراكات */
-        .sub-card { background: var(--card); border: 1px solid #30363d; border-radius: 15px; padding: 15px; margin-top: 15px; position: relative; border-right: 4px solid var(--primary); }
-        .sub-card h3 { font-size: 1.1rem; margin-bottom: 5px; }
-        .sub-card p { font-size: 0.85rem; color: #8b949e; }
-        .timer { margin-top: 10px; font-size: 0.75rem; color: var(--primary); font-weight: bold; background: #0d1117; padding: 5px 10px; border-radius: 5px; display: inline-block; }
-
-        /* المودال */
-        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:1000; align-items:center; justify-content:center; }
-        .modal-content { background: var(--card); width: 90%; max-width: 400px; padding: 25px; border-radius: 20px; }
-        .row { display: flex; gap: 10px; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="loader" class="loader-wrapper"><div class="loader"></div><p id="loader-text">جاري الاتصال بالسحابة...</p></div>
+    <div id="loader" class="loader-wrapper">
+        <div class="loader"></div>
+        <p>جاري الربط بنظام ديجيتال فورس...</p>
+    </div>
 
-    <section id="auth-view" class="view">
+    <section id="auth-view" class="view" style="display:none;">
         <div class="container auth-card">
-            <i class="fa-solid fa-cloud-bolt logo-icon"></i>
+            <i class="fa-solid fa-shield-halved logo-icon"></i>
             <h1>ديجيتال فورس</h1>
-            <p>نظام السحابة للموظفين المعتمدين</p>
-            <input type="text" id="login-name" placeholder="اسمك الثنائي">
-            <input type="tel" id="login-phone" placeholder="رقم الجوال المسجل">
-            <button class="btn-primary" onclick="login()">دخول واستعادة البيانات</button>
+            <p>نظام الإدارة المركزي للمؤسسين</p>
+            <div class="input-group">
+                <input type="text" id="login-name" placeholder="اسم الموظف المعتمد">
+                <input type="number" id="login-id" placeholder="رقم الموظف الخاص بك">
+            </div>
+            <button class="btn-primary" onclick="login()">دخول وتحقق من الصلاحيات</button>
         </div>
     </section>
 
-    <section id="main-view" class="view">
+    <section id="main-view" class="view" style="display:none;">
         <header class="header">
             <div class="user-box">
-                <div class="avatar"><i class="fa-solid fa-user"></i></div>
-                <div><h3 id="user-display">...</h3><small style="color:var(--accent)">متصل سحابياً ✅</small></div>
+                <div class="avatar"><i class="fa-solid fa-crown"></i></div>
+                <div>
+                    <h3 id="user-display">مرحباً بك أيها المؤسس العظيم</h3>
+                    <span class="status-badge"><i class="fa-solid fa-circle"></i> متصل بنظام ديجيتال فورس</span>
+                </div>
             </div>
-            <button class="btn-add" onclick="openModal()"><i class="fa-solid fa-plus"></i></button>
+            <div class="header-actions">
+                <button class="btn-add" onclick="openModal()"><i class="fa-solid fa-plus"></i></button>
+                <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-power-off"></i></button>
+            </div>
         </header>
+
         <div class="container">
-            <div id="subs-list"></div>
+            <div id="subs-list" class="subs-grid">
+                </div>
         </div>
     </section>
 
     <div id="add-modal" class="modal">
         <div class="modal-content">
-            <h3 style="margin-bottom:15px">إضافة طلب جديد</h3>
-            <input type="text" id="s-name" placeholder="نوع الاشتراك">
+            <h3>إنشاء طلب جديد ✅</h3>
+            <input type="text" id="s-name" placeholder="اسم الاشتراك (مثال: نتفليكس)">
             <input type="text" id="c-name" placeholder="اسم العميل">
+            <input type="tel" id="c-phone" placeholder="رقم جوال العميل (10 أرقام)" maxlength="10">
+            <input type="text" id="c-order" placeholder="رقم الطلب (#1234)">
             <div class="row">
-                <input type="number" id="s-price" placeholder="السعر">
-                <select id="s-dur"><option value="1">شهر</option><option value="3">3 أشهر</option><option value="12">سنة</option></select>
+                <input type="number" id="s-price" placeholder="سعر الخدمة">
+                <select id="s-dur">
+                    <option value="1">شهر واحد</option>
+                    <option value="2">شهرين</option>
+                    <option value="3">3 أشهر</option>
+                    <option value="6">6 أشهر</option>
+                    <option value="12">سنة كاملة</option>
+                </select>
             </div>
-            <button class="btn-primary" onclick="addNewSub()">حفظ في السحابة</button>
-            <button style="background:none; border:none; color:#8b949e; margin-top:10px; width:100%" onclick="closeModal()">إلغاء</button>
+            <input type="email" id="c-email" placeholder="الإيميل الذي تم تسليمه">
+            <input type="text" id="c-pass" placeholder="كلمة مرور الحساب">
+            <button class="btn-primary" onclick="addNewSub()">حفظ بنظام ديجيتال فورس</button>
+            <button class="btn-close" onclick="closeModal()">إلغاء العملية</button>
         </div>
     </div>
 
-    <script>
-        const MASTER_KEY = "$2a$10$7zecodA9NGZ0ZnvpBl/toeVivas2Yaz9iRu6QZ94lr/1aq1s1C4cu";
-        const BIN_ID = "69c24c76aa77b81da913b2f7";
-        const WH_SUBS = "https://discordapp.com/api/webhooks/1485840050183868521/cSS_nWhT0bnhcTRTPTNsN9_X4oGtNHEt8I81JoqnmMfrzhvUp6Q1QR32ETFrGPb6uBkp";
-
-        let currentUser = null;
-        let allData = {};
-
-        // عند تشغيل الصفحة
-        window.onload = async () => {
-            const saved = localStorage.getItem('df_v3_session');
-            if (saved) {
-                currentUser = JSON.parse(saved);
-                await syncCloud();
-                showDashboard();
-            } else {
-                hideLoader();
-                document.getElementById('auth-view').style.display = 'block';
-            }
-        };
-
-        async function syncCloud() {
-            try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    headers: { "X-Master-Key": MASTER_KEY }
-                });
-                const json = await res.json();
-                allData = json.record;
-            } catch (e) { alert("فشل الاتصال بالسحابة، تأكد من الإنترنت"); }
-        }
-
-        async function login() {
-            const name = document.getElementById('login-name').value;
-            const phone = document.getElementById('login-phone').value;
-            if(!name || !phone) return alert("املا البيانات");
-
-            document.getElementById('loader').style.display = 'flex';
-            await syncCloud();
-
-            if (allData.hasOwnProperty(phone)) {
-                currentUser = { name, phone };
-                localStorage.setItem('df_v3_session', JSON.stringify(currentUser));
-                showDashboard();
-            } else {
-                hideLoader();
-                alert("رقمك غير مسجل في السحابة!");
-            }
-        }
-
-        function showDashboard() {
-            document.getElementById('auth-view').style.display = 'none';
-            document.getElementById('main-view').style.display = 'block';
-            document.getElementById('user-display').innerText = "أهلاً " + currentUser.name;
-            render();
-            hideLoader();
-        }
-
-        async function addNewSub() {
-            const sub = {
-                id: Date.now(),
-                name: document.getElementById('s-name').value,
-                customer: document.getElementById('c-name').value,
-                price: document.getElementById('s-price').value,
-                end: new Date().setMonth(new Date().getMonth() + parseInt(document.getElementById('s-dur').value))
-            };
-
-            allData[currentUser.phone].unshift(sub);
-            closeModal();
-            render();
-
-            // حفظ في السحابة
-            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PUT',
-                headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
-                body: JSON.stringify(allData)
-            });
-
-            // ويب هوك
-            fetch(WH_SUBS, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ embeds: [{ title: "إضافة سحابية ✅", fields: [{name:"الموظف", value:currentUser.name}, {name:"الاشتراك", value:sub.name}], color: 3447003 }]})
-            });
-        }
-
-        function render() {
-            const list = document.getElementById('subs-list');
-            list.innerHTML = "";
-            const mySubs = allData[currentUser.phone] || [];
-            mySubs.forEach(s => {
-                const diff = s.end - Date.now();
-                const days = Math.floor(diff / 86400000);
-                list.innerHTML += `<div class="sub-card">
-                    <h3>${s.name}</h3>
-                    <p>العميل: ${s.customer} | السعر: ${s.price} ر.س</p>
-                    <div class="timer">باقي ${days > 0 ? days : 0} يوم</div>
-                </div>`;
-            });
-        }
-
-        function hideLoader() { document.getElementById('loader').style.display = 'none'; }
-        function openModal() { document.getElementById('add-modal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('add-modal').style.display = 'none'; }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

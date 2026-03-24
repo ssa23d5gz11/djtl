@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Force | نظام الإدارة الاحترافي</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Digital Force OS</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -12,34 +12,34 @@
 
     <div id="loader" class="loader-wrapper"><div class="loader"></div></div>
 
-    <section id="auth-view" class="view">
+    <section id="auth-view" class="view" style="display: none;">
         <div class="container auth-card">
             <div class="logo-box">
                 <i class="fa-solid fa-bolt-lightning logo-icon"></i>
                 <h1>ديجيتال فورس</h1>
-                <p>سجل دخولك لمرة واحدة فقط</p>
+                <p>نظام إدارة الاشتراكات الذكي</p>
             </div>
             <form id="login-form">
                 <div class="input-group">
-                    <label>اسمك الثنائي</label>
-                    <input type="text" id="login-name" placeholder="مثلاً: محمد علي" required>
+                    <label>اسم الموظف</label>
+                    <input type="text" id="login-name" placeholder="ادخل اسمك هنا" required>
                 </div>
                 <div class="input-group">
                     <label>رقم الجوال</label>
                     <input type="tel" id="login-phone" placeholder="05xxxxxxxx" required>
                 </div>
-                <button type="submit" class="btn-primary">اعتماد الجهاز والدخول</button>
+                <button type="submit" class="btn-primary">تفعيل بصمة الجهاز والدخول</button>
             </form>
         </div>
     </section>
 
-    <section id="main-view" class="view">
+    <section id="main-view" class="view" style="display: none;">
         <header class="main-header">
             <div class="user-info">
-                <div class="avatar"><i class="fa-solid fa-user-gear"></i></div>
+                <div class="avatar"><i class="fa-solid fa-user-shield"></i></div>
                 <div>
-                    <h2 id="header-user-name">مرحباً</h2>
-                    <span class="status-badge"><i class="fa-solid fa-circle"></i> متصل بنظام ديجيتال</span>
+                    <h2 id="header-user-name">مرحباً بك</h2>
+                    <span class="status-badge"><i class="fa-solid fa-circle"></i> متصل بالنظام</span>
                 </div>
             </div>
             <button class="btn-add-circle" onclick="openModal('add-modal')"><i class="fa-solid fa-plus"></i></button>
@@ -47,25 +47,26 @@
 
         <div class="container">
             <div class="stats-bar">
-                <p>إجمالي اشتراكاتك النشطة: <b id="count-active" class="highlight">0</b></p>
+                <p>اشتراكاتك المضافة: <b id="count-active">0</b></p>
             </div>
-            <div id="subs-container" class="subs-list"></div>
+            <div id="subs-container" class="subs-list">
+                </div>
         </div>
     </section>
 
     <div id="add-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>إضافة عميل جديد</h3>
+                <h3>إضافة طلب جديد</h3>
                 <span class="close-btn" onclick="closeModal('add-modal')">&times;</span>
             </div>
             <form id="add-sub-form">
                 <div class="row">
                     <div class="input-group"><label>الاشتراك</label><input type="text" id="s-name" required></div>
-                    <div class="input-group"><label>اسم العميل</label><input type="text" id="c-name" required></div>
+                    <div class="input-group"><label>العميل</label><input type="text" id="c-name" required></div>
                 </div>
                 <div class="row">
-                    <div class="input-group"><label>رقم العميل</label><input type="tel" id="c-phone" required></div>
+                    <div class="input-group"><label>رقم الجوال</label><input type="tel" id="c-phone" required></div>
                     <div class="input-group"><label>رقم الطلب</label><input type="text" id="c-order" required></div>
                 </div>
                 <div class="row">
@@ -78,7 +79,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="input-group"><label>رقم البروفايل</label>
+                    <div class="input-group"><label>البروفايل</label>
                         <select id="s-profile">
                             <option value="1">1</option><option value="2">2</option><option value="3">3</option>
                             <option value="4">4</option><option value="5">5</option><option value="6">6</option>
@@ -92,7 +93,7 @@
                     </div>
                 </div>
                 <div class="input-group"><label>الإيميل (اختياري)</label><input type="email" id="s-email"></div>
-                <button type="submit" class="btn-primary">إضافة وإرسال التقرير</button>
+                <button type="submit" class="btn-primary">إضافة العميل الآن</button>
             </form>
         </div>
     </div>

@@ -1,78 +1,22 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Digital Force | نظام المؤسس</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-    <div id="loader" class="loader-wrapper">
-        <div class="loader"></div>
-        <p>جاري الربط بنظام ديجيتال فورس...</p>
+<div id="add-modal" class="modal">
+    <div class="modal-content">
+        <h3 id="modal-title">إنشاء طلب جديد ✅</h3>
+        <input type="hidden" id="edit-id"> <input type="text" id="s-name" placeholder="اسم الاشتراك">
+        <input type="text" id="c-name" placeholder="اسم العميل">
+        <input type="tel" id="c-phone" placeholder="رقم جوال العميل (10 أرقام)" maxlength="10">
+        <input type="text" id="c-order" placeholder="رقم الطلب">
+        <div class="row">
+            <input type="number" id="s-price" placeholder="السعر">
+            <select id="s-dur">
+                <option value="1">شهر</option>
+                <option value="3">3 أشهر</option>
+                <option value="6">6 أشهر</option>
+                <option value="12">سنة</option>
+            </select>
+        </div>
+        <input type="email" id="c-email" placeholder="الإيميل">
+        <input type="text" id="c-pass" placeholder="كلمة المرور">
+        <button id="save-btn" class="btn-primary" onclick="saveSub()">حفظ في نظام ديجيتال فورس</button>
+        <button class="btn-close" onclick="closeModal()">إلغاء</button>
     </div>
-
-    <section id="auth-view" class="view" style="display:none;">
-        <div class="container auth-card">
-            <i class="fa-solid fa-shield-halved logo-icon"></i>
-            <h1>ديجيتال فورس</h1>
-            <p>نظام الإدارة المركزي للمؤسسين</p>
-            <div class="input-group">
-                <input type="text" id="login-name" placeholder="اسم الموظف المعتمد">
-                <input type="number" id="login-id" placeholder="رقم الموظف الخاص بك">
-            </div>
-            <button class="btn-primary" onclick="login()">دخول وتحقق من الصلاحيات</button>
-        </div>
-    </section>
-
-    <section id="main-view" class="view" style="display:none;">
-        <header class="header">
-            <div class="user-box">
-                <div class="avatar"><i class="fa-solid fa-crown"></i></div>
-                <div>
-                    <h3 id="user-display">مرحباً بك أيها المؤسس العظيم</h3>
-                    <span class="status-badge"><i class="fa-solid fa-circle"></i> متصل بنظام ديجيتال فورس</span>
-                </div>
-            </div>
-            <div class="header-actions">
-                <button class="btn-add" onclick="openModal()"><i class="fa-solid fa-plus"></i></button>
-                <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-power-off"></i></button>
-            </div>
-        </header>
-
-        <div class="container">
-            <div id="subs-list" class="subs-grid">
-                </div>
-        </div>
-    </section>
-
-    <div id="add-modal" class="modal">
-        <div class="modal-content">
-            <h3>إنشاء طلب جديد ✅</h3>
-            <input type="text" id="s-name" placeholder="اسم الاشتراك (مثال: نتفليكس)">
-            <input type="text" id="c-name" placeholder="اسم العميل">
-            <input type="tel" id="c-phone" placeholder="رقم جوال العميل (10 أرقام)" maxlength="10">
-            <input type="text" id="c-order" placeholder="رقم الطلب (#1234)">
-            <div class="row">
-                <input type="number" id="s-price" placeholder="سعر الخدمة">
-                <select id="s-dur">
-                    <option value="1">شهر واحد</option>
-                    <option value="2">شهرين</option>
-                    <option value="3">3 أشهر</option>
-                    <option value="6">6 أشهر</option>
-                    <option value="12">سنة كاملة</option>
-                </select>
-            </div>
-            <input type="email" id="c-email" placeholder="الإيميل الذي تم تسليمه">
-            <input type="text" id="c-pass" placeholder="كلمة مرور الحساب">
-            <button class="btn-primary" onclick="addNewSub()">حفظ بنظام ديجيتال فورس</button>
-            <button class="btn-close" onclick="closeModal()">إلغاء العملية</button>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+</div>

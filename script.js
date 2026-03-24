@@ -1,6 +1,6 @@
 // --- إعدادات النظام المركزي ---
 const MASTER_KEY = "$2a$10$7zecodA9NGZ0ZnvpBl/toeVivas2Yaz9iRu6QZ94lr/1aq1s1C4cu";
-const BIN_ID = "69c24c76aa77b81da913b2f7";
+const BIN_ID = "69c2509dc3097a1dd554b7f7";
 
 // روابط الويب هوك الخاصة بك
 const WH_LOGIN = "https://discordapp.com/api/webhooks/1485838219164651600/KaTa85eG5kGil6tPrlQsfQOhbCIKj6tiV8qumuO8zBEAel2XU7siKNW6WANstT-TqTzl";

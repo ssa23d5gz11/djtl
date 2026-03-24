@@ -3,97 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Digital Force OS</title>
+    <title>Digital Force Cloud</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="loader" class="loader-wrapper"><div class="loader"></div></div>
+    <div id="loader" class="loader-wrapper"><div class="loader"></div><p>جاري مزامنة السحابة...</p></div>
 
-    <section id="auth-view" class="view" style="display: none;">
+    <section id="auth-view" class="view" style="display:none;">
         <div class="container auth-card">
-            <div class="logo-box">
-                <i class="fa-solid fa-bolt-lightning logo-icon"></i>
-                <h1>ديجيتال فورس</h1>
-                <p>نظام إدارة الاشتراكات الذكي</p>
-            </div>
+            <i class="fa-solid fa-cloud-shield logo-icon"></i>
+            <h1>نظام السحابة الذكي</h1>
+            <p>سجل دخولك لاستعادة بياناتك</p>
             <form id="login-form">
-                <div class="input-group">
-                    <label>اسم الموظف</label>
-                    <input type="text" id="login-name" placeholder="ادخل اسمك هنا" required>
-                </div>
-                <div class="input-group">
-                    <label>رقم الجوال</label>
-                    <input type="tel" id="login-phone" placeholder="05xxxxxxxx" required>
-                </div>
-                <button type="submit" class="btn-primary">تفعيل بصمة الجهاز والدخول</button>
+                <input type="text" id="login-name" placeholder="اسم الموظف المعتمد" required>
+                <input type="tel" id="login-phone" placeholder="رقم الجوال المسجل" required>
+                <button type="submit" class="btn-primary">دخول وتحميل البيانات</button>
             </form>
         </div>
     </section>
 
-    <section id="main-view" class="view" style="display: none;">
+    <section id="main-view" class="view" style="display:none;">
         <header class="main-header">
             <div class="user-info">
-                <div class="avatar"><i class="fa-solid fa-user-shield"></i></div>
-                <div>
-                    <h2 id="header-user-name">مرحباً بك</h2>
-                    <span class="status-badge"><i class="fa-solid fa-circle"></i> متصل بالنظام</span>
-                </div>
+                <div class="avatar"><i class="fa-solid fa-user-check"></i></div>
+                <div><h2 id="header-user-name">...</h2><span class="status-badge">متصل بالسحابة ✅</span></div>
             </div>
             <button class="btn-add-circle" onclick="openModal('add-modal')"><i class="fa-solid fa-plus"></i></button>
         </header>
-
         <div class="container">
-            <div class="stats-bar">
-                <p>اشتراكاتك المضافة: <b id="count-active">0</b></p>
-            </div>
-            <div id="subs-container" class="subs-list">
-                </div>
+            <div id="subs-container" class="subs-list"></div>
         </div>
     </section>
 
     <div id="add-modal" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h3>إضافة طلب جديد</h3>
-                <span class="close-btn" onclick="closeModal('add-modal')">&times;</span>
-            </div>
+            <div class="modal-header"><h3>إضافة طلب جديد</h3><span onclick="closeModal('add-modal')">&times;</span></div>
             <form id="add-sub-form">
                 <div class="row">
-                    <div class="input-group"><label>الاشتراك</label><input type="text" id="s-name" required></div>
-                    <div class="input-group"><label>العميل</label><input type="text" id="c-name" required></div>
+                    <input type="text" id="s-name" placeholder="الاشتراك" required>
+                    <input type="text" id="c-name" placeholder="اسم العميل" required>
                 </div>
                 <div class="row">
-                    <div class="input-group"><label>رقم الجوال</label><input type="tel" id="c-phone" required></div>
-                    <div class="input-group"><label>رقم الطلب</label><input type="text" id="c-order" required></div>
+                    <input type="tel" id="c-phone" placeholder="جوال العميل" required>
+                    <input type="text" id="c-order" placeholder="رقم الطلب" required>
                 </div>
                 <div class="row">
-                    <div class="input-group"><label>السعر</label><input type="number" id="s-price" step="0.01" required></div>
-                    <div class="input-group"><label>المدة</label>
-                        <select id="s-duration">
-                            <option value="1">شهر</option><option value="2">شهرين</option>
-                            <option value="3">3 أشهر</option><option value="6">6 أشهر</option><option value="12">سنة</option>
-                        </select>
-                    </div>
+                    <input type="number" id="s-price" placeholder="السعر" required>
+                    <select id="s-duration">
+                        <option value="1">شهر</option><option value="2">شهرين</option>
+                        <option value="3">3 أشهر</option><option value="6">6 أشهر</option><option value="12">سنة</option>
+                    </select>
                 </div>
                 <div class="row">
-                    <div class="input-group"><label>البروفايل</label>
-                        <select id="s-profile">
-                            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-                            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-                            <option value="7">7</option><option value="8">8</option>
-                        </select>
-                    </div>
-                    <div class="input-group"><label>نوع الحساب</label>
-                        <select id="s-type">
-                            <option value="مشترك">مشترك</option><option value="خاص">خاص</option>
-                        </select>
-                    </div>
+                    <select id="s-profile"><option value="1">بروفايل 1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+                    <select id="s-type"><option value="مشترك">مشترك</option><option value="خاص">خاص</option></select>
                 </div>
-                <div class="input-group"><label>الإيميل (اختياري)</label><input type="email" id="s-email"></div>
-                <button type="submit" class="btn-primary">إضافة العميل الآن</button>
+                <button type="submit" class="btn-primary">تأكيد الإضافة والحفظ السحابي</button>
             </form>
         </div>
     </div>

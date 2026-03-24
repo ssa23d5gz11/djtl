@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ديجيتال فورس - الإدارة الاحترافية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <section id="welcome-view" class="view">
+        <div class="container text-center">
+            <div class="logo-box">
+                <i class="fa-solid fa-bolt logo-icon"></i>
+                <h1>ديجيتال فورس</h1>
+            </div>
+            <h2 class="welcome-title">مرحباً بك عزيزي الإداري</h2>
+            <div class="features">
+                <div class="feature-card"><i class="fa-solid fa-clock"></i><h3>توفير وقت</h3></div>
+                <div class="feature-card"><i class="fa-solid fa-handshake"></i><h3>تسهيل لعملاءك</h3></div>
+                <div class="feature-card"><i class="fa-solid fa-shield-halved"></i><h3>خدمة لثقة عملاءك</h3></div>
+            </div>
+            <button class="btn-primary" onclick="showView('register-view')">ابدأ الآن <i class="fa-solid fa-arrow-left"></i></button>
+        </div>
+    </section>
+
+    <section id="register-view" class="view">
+        <div class="container form-container">
+            <h2>تسجيل الموظف</h2>
+            <form id="employee-form">
+                <div class="input-group"><label>اسم الموظف</label><input type="text" id="emp-name" required></div>
+                <div class="input-group"><label>رقم الموظف</label><input type="number" id="emp-id" required></div>
+                <div class="input-group"><label>تقييمك للموقع</label><textarea id="emp-note" rows="2"></textarea></div>
+                <button type="submit" class="btn-primary">دخول للنظام</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="dashboard-view" class="view">
+        <header class="dash-header">
+            <div>
+                <h2>أهلاً، <span id="display-emp-name" class="highlight"></span></h2>
+                <p id="emp-status-bar">متصل الآن</p>
+            </div>
+            <button class="btn-add" onclick="openModal('add-sub-modal')">+ إضافة</button>
+        </header>
+        <div class="container dash-content">
+            <div id="subscriptions-list" class="subs-grid"></div>
+        </div>
+    </section>
+
+    <div id="add-sub-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('add-sub-modal')">&times;</span>
+            <h3>إضافة اشتراك</h3>
+            <form id="subscription-form">
+                <div class="input-group"><label>اسم الاشتراك</label><input type="text" id="sub-name" required></div>
+                <div class="input-group"><label>اسم العميل</label><input type="text" id="cus-name" required></div>
+                <div class="row-inputs">
+                    <div class="input-group"><label>رقم العميل</label><input type="tel" id="cus-phone" required></div>
+                    <div class="input-group"><label>رقم الطلب</label><input type="text" id="cus-order" required></div>
+                </div>
+                <div class="row-inputs">
+                    <div class="input-group"><label>السعر</label><input type="number" id="sub-price" step="0.01" required></div>
+                    <div class="input-group"><label>المدة</label>
+                        <select id="sub-duration">
+                            <option value="1">شهر</option><option value="2">شهران</option>
+                            <option value="3">3 أشهر</option><option value="6">6 أشهر</option><option value="12">سنة</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group"><label>الإيميل (اختياري)</label><input type="email" id="sub-email"></div>
+                <button type="submit" class="btn-primary">تأكيد الإضافة</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-sub-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('edit-sub-modal')">&times;</span>
+            <h3>تعديل البيانات</h3>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="input-group"><label>اسم الاشتراك</label><input type="text" id="edit-sub-name" required></div>
+                <div class="input-group"><label>اسم العميل</label><input type="text" id="edit-cus-name" required></div>
+                <div class="row-inputs">
+                    <div class="input-group"><label>رقم العميل</label><input type="tel" id="edit-cus-phone" required></div>
+                    <div class="input-group"><label>السعر</label><input type="number" id="edit-sub-price" step="0.01" required></div>
+                </div>
+                <button type="submit" class="btn-primary">حفظ التعديلات</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

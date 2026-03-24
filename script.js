@@ -1,152 +1,139 @@
-// --- إعدادات النظام المركزي ---
-const MASTER_KEY = "$2a$10$7zecodA9NGZ0ZnvpBl/toeVivas2Yaz9iRu6QZ94lr/1aq1s1C4cu";
-const BIN_ID = "69c2509dc3097a1dd554b7f7";
+// --- وظائف التحكم الاحترافية ---
 
-// روابط الويب هوك الخاصة بك
-const WH_LOGIN = "https://discordapp.com/api/webhooks/1485838219164651600/KaTa85eG5kGil6tPrlQsfQOhbCIKj6tiV8qumuO8zBEAel2XU7siKNW6WANstT-TqTzl";
-const WH_SUBS = "https://discordapp.com/api/webhooks/1485840050183868521/cSS_nWhT0bnhcTRTPTNsN9_X4oGtNHEt8I81JoqnmMfrzhvUp6Q1QR32ETFrGPb6uBkp";
-const WH_STATUS = "https://discordapp.com/api/webhooks/1485910281686351913/8xG_slRzVKs3Co9Iz8eC23yYBwwlIUA-9ShcvYA4cAMmqJEPmGrjxkkRjzOUNH-iba66";
-
-let currentUser = null;
-let allData = {};
-
-// تشغيل النظام
-window.onload = async () => {
-    const session = localStorage.getItem('df_sys_session');
-    if (session) {
-        currentUser = JSON.parse(session);
-        await syncData();
-        showMain();
+// 1. فتح المودال للإضافة أو التعديل
+function openModal(subId = null) {
+    const modal = document.getElementById('add-modal');
+    const title = document.getElementById('modal-title');
+    const btn = document.getElementById('save-btn');
+    
+    if (subId) {
+        // وضع التعديل
+        title.innerText = "تعديل بيانات الطلب ✏️";
+        btn.innerText = "تحديث البيانات بالسحابة";
+        const sub = allData[currentUser.id].find(s => s.id === subId);
+        document.getElementById('edit-id').value = sub.id;
+        document.getElementById('s-name').value = sub.sName;
+        document.getElementById('c-name').value = sub.cName;
+        document.getElementById('c-phone').value = sub.cPhone;
+        document.getElementById('c-order').value = sub.orderId;
+        document.getElementById('s-price').value = sub.price;
+        document.getElementById('c-email').value = sub.email;
+        document.getElementById('c-pass').value = sub.pass;
     } else {
-        hideLoader();
-        document.getElementById('auth-view').style.display = 'block';
+        // وضع الإضافة
+        title.innerText = "إنشاء طلب جديد ✅";
+        btn.innerText = "حفظ في نظام ديجيتال فورس";
+        document.getElementById('edit-id').value = "";
+        document.getElementById('add-modal').querySelectorAll('input').forEach(i => i.value = "");
     }
-};
-
-// مزامنة البيانات من السحابة
-async function syncData() {
-    try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-            headers: { "X-Master-Key": MASTER_KEY }
-        });
-        const json = await res.json();
-        allData = json.record;
-    } catch (e) { console.error("Cloud Sync Failed"); }
+    modal.style.display = 'flex';
 }
 
-// تسجيل الدخول والتحقق من رقم الموظف (96, 507, 515)
-async function login() {
-    const name = document.getElementById('login-name').value;
-    const id = document.getElementById('login-id').value;
-
-    if(!name || !id) return alert("يرجى إدخال كافة البيانات المطلوبة");
-
-    document.getElementById('loader').style.display = 'flex';
-    await syncData();
-
-    if (allData.hasOwnProperty(id)) {
-        currentUser = { name, id };
-        localStorage.setItem('df_sys_session', JSON.stringify(currentUser));
-        
-        // ويب هوك الدخول
-        sendWebhook(WH_LOGIN, "نظام الدخول الآمن 🛂", [
-            {name: "المؤسس المعتمد", value: name},
-            {name: "رقم الموظف", value: id}
-        ], 3447003);
-
-        showMain();
-    } else {
-        hideLoader();
-        alert("أنت غير متصل بالنظام: رقم الموظف غير صحيح أو غير مسجل!");
-    }
-}
-
-function showMain() {
-    document.getElementById('auth-view').style.display = 'none';
-    document.getElementById('main-view').style.display = 'block';
-    document.getElementById('user-display').innerText = `مرحباً بك أيها المؤسس العظيم ${currentUser.name}`;
-    renderSubs();
-    hideLoader();
-
-    // ويب هوك حالة الاتصال
-    sendWebhook(WH_STATUS, "الموظف متصل الآن بنظام ديجيتال فورس 🟢", [{name:"الاسم", value:currentUser.name}], 5763719);
-}
-
-// إضافة اشتراك جديد وحفظه سحابياً
-async function addNewSub() {
-    const phone = document.getElementById('c-phone').value;
-    if (phone.length !== 10) return alert("خطأ: رقم جوال العميل يجب أن يكون 10 أرقام فقط!");
-
-    const sub = {
-        id: Date.now(),
+// 2. دالة الحفظ (إضافة أو تحديث)
+async function saveSub() {
+    const editId = document.getElementById('edit-id').value;
+    const subData = {
+        id: editId ? parseInt(editId) : Date.now(),
         sName: document.getElementById('s-name').value,
         cName: document.getElementById('c-name').value,
-        cPhone: phone,
+        cPhone: document.getElementById('c-phone').value,
         orderId: document.getElementById('c-order').value,
         price: document.getElementById('s-price').value,
         email: document.getElementById('c-email').value,
         pass: document.getElementById('c-pass').value,
         dur: document.getElementById('s-dur').value,
-        end: new Date().setMonth(new Date().getMonth() + parseInt(document.getElementById('s-dur').value))
+        // إذا كان تعديل، نحافظ على تاريخ النهاية الأصلي، إذا جديد نحسبه
+        end: editId ? allData[currentUser.id].find(s => s.id == editId).end : 
+             new Date().setMonth(new Date().getMonth() + parseInt(document.getElementById('s-dur').value))
     };
 
-    allData[currentUser.id].unshift(sub);
-    renderSubs();
-    closeModal();
+    if (editId) {
+        const index = allData[currentUser.id].findIndex(s => s.id == editId);
+        allData[currentUser.id][index] = subData;
+    } else {
+        allData[currentUser.id].unshift(subData);
+    }
 
-    // تحديث السحابة فوراً
+    await updateCloud();
+    closeModal();
+    renderSubs();
+}
+
+// 3. حذف الطلب نهائياً من السحابة
+async function deleteSub(subId) {
+    if (confirm("هل أنت متأكد من حذف هذا الطلب نهائياً من نظام ديجيتال فورس؟")) {
+        allData[currentUser.id] = allData[currentUser.id].filter(s => s.id !== subId);
+        await updateCloud();
+        renderSubs();
+        
+        sendWebhook(WH_SUBS, "حذف طلب من النظام 🗑️", [
+            {name: "الموظف", value: currentUser.name},
+            {name: "رقم الطلب المحذوف", value: subId}
+        ], 15548997);
+    }
+}
+
+// 4. تحديث السحابة (jsonbin.io)
+async function updateCloud() {
     await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
         method: 'PUT',
         headers: { "Content-Type": "application/json", "X-Master-Key": MASTER_KEY },
         body: JSON.stringify(allData)
     });
-
-    // ويب هوك الطلب الجديد
-    sendWebhook(WH_SUBS, "إنشاء طلب جديد بنظام ديجيتال فورس ✅", [
-        {name: "الموظف", value: currentUser.name},
-        {name: "الاشتراك", value: sub.sName},
-        {name: "العميل", value: sub.cName},
-        {name: "الحساب", value: sub.email},
-        {name: "الباسورد", value: sub.pass},
-        {name: "المدة", value: sub.dur + " شهر"}
-    ], 1752220);
 }
 
-// عرض الاشتراكات وحساب الوقت المتبقي
+// 5. عداد الوقت الحي (ثانية بثانية)
+function startLiveTimers() {
+    setInterval(() => {
+        document.querySelectorAll('.live-timer').forEach(timer => {
+            const endTime = timer.getAttribute('data-end');
+            const now = new Date().getTime();
+            const distance = endTime - now;
+
+            if (distance < 0) {
+                timer.innerHTML = "منتهي الصلاحية ⚠️";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            timer.innerHTML = `
+                <div class="timer-unit">${days}<span>يوم</span></div>
+                <div class="timer-unit">${hours}<span>ساعة</span></div>
+                <div class="timer-unit">${minutes}<span>دقيقة</span></div>
+                <div class="timer-unit">${seconds}<span>ثانية</span></div>
+            `;
+        });
+    }, 1000);
+}
+
+// 6. تحديث دالة الـ Render لإضافة الأزرار والوقت
 function renderSubs() {
     const list = document.getElementById('subs-list');
     list.innerHTML = "";
     const myData = allData[currentUser.id] || [];
+    
     myData.forEach(s => {
-        const remaining = Math.floor((s.end - Date.now()) / 86400000);
         list.innerHTML += `
             <div class="sub-card">
+                <div class="card-actions">
+                    <button class="btn-icon btn-edit" onclick="openModal(${s.id})"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="btn-icon btn-delete" onclick="deleteSub(${s.id})"><i class="fa-solid fa-trash"></i></button>
+                </div>
                 <h3>${s.sName}</h3>
                 <p>العميل: <b>${s.cName}</b></p>
                 <p>الجوال: <b>${s.cPhone}</b></p>
                 <p>الطلب: <b>#${s.orderId}</b></p>
                 <p>السعر: <b style="color:#10b981">${s.price} ر.س</b></p>
-                <p>الإيميل: <b>${s.email}</b></p>
+                <p>الحساب: <b>${s.email}</b></p>
                 <p>الباسورد: <b>${s.pass}</b></p>
-                <div style="margin-top:10px; font-weight:900; color:#3b82f6">المتبقي: ${remaining > 0 ? remaining : 0} يوم</div>
+                <div class="live-timer" data-end="${s.end}">تحميل الوقت...</div>
             </div>`;
     });
 }
 
-// إرسال البيانات للديسكورد
-function sendWebhook(url, title, fields, color) {
-    fetch(url, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ embeds: [{ title, fields, color, timestamp: new Date() }] })
-    });
-}
-
-function logout() {
-    localStorage.removeItem('df_sys_session');
-    location.reload();
-}
-
-function hideLoader() { document.getElementById('loader').style.display = 'none'; }
-function openModal() { document.getElementById('add-modal').style.display = 'flex'; }
-function closeModal() { document.getElementById('add-modal').style.display = 'none'; }
+// أضف هذه في نهاية دالة showMain
+startLiveTimers();

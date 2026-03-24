@@ -1,62 +1,53 @@
-/* الألوان الأساسية */
 :root {
-    --bg-color: #0f172a; --card-bg: #1e293b; --primary: #3b82f6;
+    --bg-color: #0b0f19; --card-bg: #161e2d; --primary: #3b82f6;
     --accent: #10b981; --danger: #ef4444; --text-main: #f8fafc; --text-muted: #94a3b8;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
-body { background: var(--bg-color); color: var(--text-main); line-height: 1.6; }
-.container { width: 92%; max-width: 500px; margin: 0 auto; padding: 20px 0; }
+body { background: var(--bg-color); color: var(--text-main); direction: rtl; }
+.container { width: 92%; max-width: 550px; margin: 0 auto; padding: 15px 0; }
 
 .view { display: none; min-height: 100vh; animation: fadeIn 0.3s; }
 .view.active { display: flex; flex-direction: column; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* الترحيب */
-.logo-box { margin-bottom: 30px; margin-top: 50px; }
-.logo-icon { font-size: 4rem; color: var(--primary); text-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
-.features { display: flex; flex-direction: column; gap: 12px; margin: 25px 0; }
-.feature-card { background: var(--card-bg); padding: 15px; border-radius: 12px; display: flex; align-items: center; gap: 15px; border: 1px solid #334155; }
-.feature-card i { color: var(--accent); font-size: 1.2rem; }
+.logo-box { margin: 40px 0 20px; }
+.logo-icon { font-size: 3.5rem; color: var(--primary); }
+.feature-card { background: var(--card-bg); padding: 12px; border-radius: 10px; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; border: 1px solid #2d3748; }
 
-/* الأزرار والحقول */
-.btn-primary { background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 10px; width: 100%; font-weight: 800; cursor: pointer; }
+.btn-primary { background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 10px; width: 100%; font-weight: 800; cursor: pointer; font-size: 1rem; }
 .input-group { margin-bottom: 12px; text-align: right; }
-.input-group label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; display: block; }
+.input-group label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; display: block; }
 .input-group input, .input-group select, .input-group textarea {
-    width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff;
+    width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #2d3748; background: #0b0f19; color: #fff; font-size: 0.9rem;
 }
 .row-inputs { display: flex; gap: 10px; }
 .row-inputs .input-group { flex: 1; }
 
-/* لوحة التحكم والكروت */
-.dash-header { background: var(--card-bg); padding: 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--primary); }
+.dash-header { background: var(--card-bg); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid var(--primary); }
 .highlight { color: var(--primary); }
-.btn-add { background: var(--accent); color: #fff; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; }
+.btn-add { background: var(--accent); color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
 .subs-grid { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
-.sub-card { background: var(--card-bg); border-radius: 15px; padding: 18px; border-right: 5px solid var(--primary); position: relative; }
+.sub-card { background: var(--card-bg); border-radius: 15px; padding: 18px; border-right: 4px solid var(--primary); position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
-/* أيقونات التحكم */
-.card-actions { position: absolute; top: 15px; left: 15px; display: flex; gap: 10px; }
-.action-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; transition: 0.2s; }
+.card-actions { position: absolute; top: 12px; left: 12px; display: flex; gap: 12px; }
+.action-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; }
 .edit-btn { color: var(--text-muted); }
 .delete-btn { color: var(--danger); }
-.edit-btn:hover { color: var(--primary); }
 
-.sub-header { margin-bottom: 10px; padding-left: 50px; }
-.sub-title { display: block; font-weight: 800; font-size: 1.1rem; }
+.sub-header { margin-bottom: 8px; padding-left: 55px; }
+.sub-title { font-weight: 800; font-size: 1.1rem; display: block; }
 .sub-price { color: var(--accent); font-weight: bold; font-size: 0.9rem; }
-.sub-details p { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 4px; }
-.sub-details span { color: var(--text-muted); }
+.sub-details p { font-size: 0.85rem; color: #cbd5e1; margin-bottom: 3px; }
+.sub-details span { color: var(--text-muted); font-size: 0.8rem; }
+.tag { background: #1a202c; padding: 2px 8px; border-radius: 5px; font-size: 0.75rem; border: 1px solid #4a5568; margin-left: 5px; }
 
-/* العداد */
-.timer-box { background: #0f172a; padding: 10px; border-radius: 8px; margin-top: 10px; display: flex; justify-content: space-around; border: 1px solid #334155; }
+.timer-box { background: #0b0f19; padding: 10px; border-radius: 8px; margin-top: 12px; display: flex; justify-content: space-around; border: 1px solid #2d3748; }
 .time-unit { display: flex; flex-direction: column; align-items: center; }
-.time-val { font-weight: 800; color: var(--primary); font-size: 1rem; }
-.time-label { font-size: 0.65rem; color: var(--text-muted); }
+.time-val { font-weight: 800; color: var(--primary); font-size: 0.95rem; }
+.time-label { font-size: 0.6rem; color: var(--text-muted); }
 
-/* Modal */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; }
-.modal-content { background: var(--card-bg); padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; position: relative; }
-.close-btn { position: absolute; top: 10px; left: 10px; font-size: 1.5rem; cursor: pointer; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; }
+.modal-content { background: var(--card-bg); padding: 20px; border-radius: 15px; width: 92%; max-width: 450px; position: relative; max-height: 95vh; overflow-y: auto; }
+.close-btn { position: absolute; top: 10px; left: 10px; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }

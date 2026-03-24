@@ -3,131 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ديجيتال فورس - نظام الإدارة المطور</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Digital Force | الإدارة الذكية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <section id="welcome-view" class="view">
-        <div class="container text-center">
-            <div class="logo-box">
-                <i class="fa-solid fa-bolt logo-icon"></i>
-                <h1>ديجيتال فورس</h1>
-            </div>
-            <h2 class="welcome-title">مرحباً بك عزيزي الإداري</h2>
-            <div class="features">
-                <div class="feature-card"><i class="fa-solid fa-clock"></i><h3>توفير وقت</h3></div>
-                <div class="feature-card"><i class="fa-solid fa-handshake"></i><h3>تسهيل لعملاءك</h3></div>
-                <div class="feature-card"><i class="fa-solid fa-shield-halved"></i><h3>خدمة لثقة عملاءك</h3></div>
-            </div>
-            <button class="btn-primary" onclick="showView('register-view')">ابدأ الآن <i class="fa-solid fa-arrow-left"></i></button>
-        </div>
-    </section>
+    <div id="loader" class="loader-wrapper"><div class="loader"></div></div>
 
-    <section id="register-view" class="view">
-        <div class="container form-container">
-            <h2>بيانات الموظف</h2>
-            <form id="employee-form">
-                <div class="input-group"><label>اسم الموظف</label><input type="text" id="emp-name" required></div>
-                <div class="input-group"><label>رقم الموظف</label><input type="number" id="emp-id" required></div>
-                <div class="input-group"><label>تقييمك للموقع</label><textarea id="emp-note" rows="2"></textarea></div>
-                <button type="submit" class="btn-primary">دخول للنظام</button>
+    <section id="auth-view" class="view">
+        <div class="container auth-card">
+            <div class="logo-box">
+                <i class="fa-solid fa-shield-halved logo-icon"></i>
+                <h1>ديجيتال فورس</h1>
+                <p>نظام إدارة الاشتراكات الموحد</p>
+            </div>
+            <form id="login-form">
+                <div class="input-group">
+                    <label>اسم الموظف الثنائي</label>
+                    <input type="text" id="login-name" placeholder="مثلاً: سامر الأحمد" required>
+                </div>
+                <div class="input-group">
+                    <label>رقم الجوال</label>
+                    <input type="tel" id="login-phone" placeholder="05xxxxxxxx" required>
+                </div>
+                <button type="submit" class="btn-primary">تسجيل الدخول الدائم</button>
             </form>
         </div>
     </section>
 
-    <section id="dashboard-view" class="view">
-        <header class="dash-header">
-            <div>
-                <h2>أهلاً، <span id="display-emp-name" class="highlight"></span></h2>
-                <p>لوحة تحكم ديجيتال فورس</p>
+    <section id="main-view" class="view">
+        <header class="main-header">
+            <div class="user-info">
+                <div class="avatar"><i class="fa-solid fa-user-tie"></i></div>
+                <div>
+                    <h2 id="header-user-name">...</h2>
+                    <span class="status-badge"><i class="fa-solid fa-circle"></i> متصل الآن</span>
+                </div>
             </div>
-            <button class="btn-add" onclick="openModal('add-sub-modal')">+ إضافة اشتراك</button>
+            <button class="btn-add-circle" onclick="openModal('add-modal')"><i class="fa-solid fa-plus"></i></button>
         </header>
-        <div class="container dash-content">
-            <div id="subscriptions-list" class="subs-grid"></div>
+
+        <div class="container">
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span id="count-active">0</span>
+                    <label>اشتراك نشط</label>
+                </div>
+            </div>
+            
+            <div id="subs-container" class="subs-list">
+                </div>
         </div>
     </section>
 
-    <div id="add-sub-modal" class="modal">
+    <div id="add-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('add-sub-modal')">&times;</span>
-            <h3>إضافة اشتراك جديد</h3>
-            <form id="subscription-form">
-                <div class="row-inputs">
-                    <div class="input-group"><label>اسم الاشتراك</label><input type="text" id="sub-name" required></div>
-                    <div class="input-group"><label>اسم العميل</label><input type="text" id="cus-name" required></div>
+            <div class="modal-header">
+                <h3>إضافة عميل جديد</h3>
+                <span class="close-btn" onclick="closeModal('add-modal')">&times;</span>
+            </div>
+            <form id="add-sub-form">
+                <div class="row">
+                    <div class="input-group"><label>الاشتراك</label><input type="text" id="s-name" required></div>
+                    <div class="input-group"><label>اسم العميل</label><input type="text" id="c-name" required></div>
                 </div>
-                <div class="row-inputs">
-                    <div class="input-group"><label>رقم العميل</label><input type="tel" id="cus-phone" required></div>
-                    <div class="input-group"><label>رقم الطلب</label><input type="text" id="cus-order" required></div>
+                <div class="row">
+                    <div class="input-group"><label>رقم العميل</label><input type="tel" id="c-phone" required></div>
+                    <div class="input-group"><label>رقم الطلب</label><input type="text" id="c-order" required></div>
                 </div>
-                <div class="row-inputs">
-                    <div class="input-group"><label>السعر</label><input type="number" id="sub-price" step="0.01" required></div>
+                <div class="row">
+                    <div class="input-group"><label>السعر</label><input type="number" id="s-price" step="0.01" required></div>
                     <div class="input-group"><label>المدة</label>
-                        <select id="sub-duration">
-                            <option value="1">شهر</option><option value="2">شهران</option>
-                            <option value="3">3 أشهر</option><option value="6">6 أشهر</option><option value="12">سنة</option>
+                        <select id="s-duration">
+                            <option value="1">شهر</option>
+                            <option value="2">شهرين</option>
+                            <option value="3">3 أشهر</option>
+                            <option value="6">6 أشهر</option>
+                            <option value="12">سنة</option>
                         </select>
                     </div>
                 </div>
-                <div class="row-inputs">
-                    <div class="input-group"><label>رقم البروفايل</label>
-                        <select id="sub-profile">
+                <div class="row">
+                    <div class="input-group"><label>البروفايل</label>
+                        <select id="s-profile">
                             <option value="1">1</option><option value="2">2</option><option value="3">3</option>
                             <option value="4">4</option><option value="5">5</option><option value="6">6</option>
                             <option value="7">7</option><option value="8">8</option>
                         </select>
                     </div>
                     <div class="input-group"><label>نوع الحساب</label>
-                        <select id="sub-private">
-                            <option value="مشترك">مشترك (شير)</option>
-                            <option value="خاص">حساب خاص بالعميل</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="input-group"><label>الإيميل (اختياري)</label><input type="email" id="sub-email"></div>
-                <button type="submit" class="btn-primary">موافق</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="edit-sub-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('edit-sub-modal')">&times;</span>
-            <h3>تعديل بيانات العميل</h3>
-            <form id="edit-form">
-                <input type="hidden" id="edit-id">
-                <div class="row-inputs">
-                    <div class="input-group"><label>الاشتراك</label><input type="text" id="edit-sub-name" required></div>
-                    <div class="input-group"><label>العميل</label><input type="text" id="edit-cus-name" required></div>
-                </div>
-                <div class="row-inputs">
-                    <div class="input-group"><label>الجوال</label><input type="tel" id="edit-cus-phone" required></div>
-                    <div class="input-group"><label>الطلب</label><input type="text" id="edit-cus-order" required></div>
-                </div>
-                <div class="row-inputs">
-                    <div class="input-group"><label>السعر</label><input type="number" id="edit-sub-price" step="0.01" required></div>
-                    <div class="input-group"><label>الإيميل</label><input type="email" id="edit-sub-email"></div>
-                </div>
-                <div class="row-inputs">
-                    <div class="input-group"><label>البروفايل</label>
-                        <select id="edit-sub-profile">
-                            <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-                            <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-                            <option value="7">7</option><option value="8">8</option>
-                        </select>
-                    </div>
-                    <div class="input-group"><label>النوع</label>
-                        <select id="edit-sub-private">
+                        <select id="s-type">
                             <option value="مشترك">مشترك</option>
-                            <option value="خاص">حساب خاص</option>
+                            <option value="خاص">خاص</option>
                         </select>
                     </div>
                 </div>
-                <button type="submit" class="btn-primary" style="background: var(--accent);">حفظ كل التعديلات</button>
+                <div class="input-group"><label>الإيميل (إن وجد)</label><input type="email" id="s-email"></div>
+                <button type="submit" class="btn-primary">تأكيد العملية</button>
             </form>
         </div>
     </div>

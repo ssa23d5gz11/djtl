@@ -1,187 +1,58 @@
-const WEBHOOK_LOGS = "https://discordapp.com/api/webhooks/1485838219164651600/KaTa85eG5kGil6tPrlQsfQOhbCIKj6tiV8qumuO8zBEAel2XU7siKNW6WANstT-TqTzl";
-const WEBHOOK_SUBS = "https://discordapp.com/api/webhooks/1485840050183868521/cSS_nWhT0bnhcTRTPTNsN9_X4oGtNHEt8I81JoqnmMfrzhvUp6Q1QR32ETFrGPb6uBkp";
-
-let employee = null;
-let subs = [];
-
-document.addEventListener('DOMContentLoaded', () => {
-    const savedEmp = localStorage.getItem('df_emp_v2');
-    if (savedEmp) {
-        employee = JSON.parse(savedEmp);
-        loadDashboard();
-    } else {
-        showView('welcome-view');
-    }
-});
-
-function showView(id) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+:root {
+    --bg: #090e17; --card: #141b26; --primary: #3b82f6; 
+    --accent: #10b981; --danger: #f43f5e; --text: #f8fafc;
 }
 
-// دخول الموظف
-document.getElementById('employee-form').onsubmit = async (e) => {
-    e.preventDefault();
-    employee = { name: document.getElementById('emp-name').value, id: document.getElementById('emp-id').value };
-    localStorage.setItem('df_emp_v2', JSON.stringify(employee));
-    
-    await sendDiscord(WEBHOOK_LOGS, "تسجيل دخول إداري 👤", [
-        { name: "الإداري", value: employee.name, inline: true },
-        { name: "الرقم الوظيفي", value: employee.id, inline: true }
-    ], 3447003);
-    
-    loadDashboard();
-};
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo', sans-serif; }
+body { background: var(--bg); color: var(--text); overflow-x: hidden; }
 
-function loadDashboard() {
-    showView('dashboard-view');
-    document.getElementById('display-emp-name').textContent = employee.name;
-    const data = localStorage.getItem(`df_subs_v2_${employee.id}`);
-    subs = data ? JSON.parse(data) : [];
-    renderSubs();
-    setInterval(updateTimers, 1000);
-}
+/* Loader */
+.loader-wrapper { position:fixed; inset:0; background:var(--bg); z-index:9999; display:flex; align-items:center; justify-content:center; }
+.loader { width:40px; height:40px; border:4px solid #1e293b; border-top-color:var(--primary); border-radius:50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
 
-function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+.view { display:none; min-height: 100vh; }
+.view.active { display:block; animation: fade 0.4s ease; }
+@keyframes fade { from { opacity:0; } to { opacity:1; } }
 
-// إضافة اشتراك
-document.getElementById('subscription-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const newSub = {
-        id: Date.now(),
-        subName: document.getElementById('sub-name').value,
-        cusName: document.getElementById('cus-name').value,
-        cusPhone: document.getElementById('cus-phone').value,
-        cusOrder: document.getElementById('cus-order').value,
-        price: document.getElementById('sub-price').value,
-        duration: document.getElementById('sub-duration').value,
-        email: document.getElementById('sub-email').value || "لا يوجد",
-        profile: document.getElementById('sub-profile').value,
-        accType: document.getElementById('sub-private').value,
-        endTime: new Date().setMonth(new Date().getMonth() + parseInt(document.getElementById('sub-duration').value))
-    };
-    
-    subs.unshift(newSub);
-    saveData();
-    renderSubs();
-    closeModal('add-sub-modal');
-    e.target.reset();
+/* Auth Card */
+.auth-card { padding: 40px 20px; text-align: center; max-width: 400px; margin: 80px auto; }
+.logo-icon { font-size: 4rem; color: var(--primary); margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(59,130,246,0.4)); }
 
-    await sendDiscord(WEBHOOK_SUBS, "إنشاء اشتراك جديد 💎", [
-        { name: "بواسطة الموظف", value: employee.name },
-        { name: "الاشتراك", value: newSub.subName, inline: true },
-        { name: "العميل", value: newSub.cusName, inline: true },
-        { name: "البروفايل", value: newSub.profile, inline: true },
-        { name: "نوع الحساب", value: newSub.accType, inline: true },
-        { name: "السعر", value: newSub.price + " ر.س", inline: true },
-        { name: "رقم الطلب", value: newSub.cusOrder, inline: true }
-    ], 3066993);
-};
+/* Header */
+.main-header { background: var(--card); padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #232d3d; position: sticky; top: 0; z-index: 100; }
+.user-info { display: flex; align-items: center; gap: 15px; }
+.avatar { width: 50px; height: 50px; background: #1e293b; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--primary); }
+.status-badge { font-size: 0.75rem; color: var(--accent); display: flex; align-items: center; gap: 5px; }
+.status-badge i { font-size: 0.5rem; }
 
-// حذف اشتراك
-async function deleteSub(id) {
-    if(confirm('سيتم حذف بيانات العميل نهائياً، هل أنت متأكد؟')) {
-        const item = subs.find(s => s.id === id);
-        subs = subs.filter(s => s.id !== id);
-        saveData();
-        renderSubs();
-        await sendDiscord(WEBHOOK_SUBS, "حذف عميل 🗑️", [
-            { name: "الموظف", value: employee.name },
-            { name: "العميل المحذوف", value: item.cusName }
-        ], 15158332);
-    }
-}
+/* Buttons */
+.btn-primary { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+.btn-add-circle { width: 50px; height: 50px; border-radius: 50%; background: var(--accent); color: white; border: none; font-size: 1.5rem; cursor: pointer; box-shadow: 0 5px 15px rgba(16,185,129,0.3); }
 
-// تعديل شامل
-function openEdit(id) {
-    const s = subs.find(item => item.id === id);
-    document.getElementById('edit-id').value = s.id;
-    document.getElementById('edit-sub-name').value = s.subName;
-    document.getElementById('edit-cus-name').value = s.cusName;
-    document.getElementById('edit-cus-phone').value = s.cusPhone;
-    document.getElementById('edit-cus-order').value = s.cusOrder;
-    document.getElementById('edit-sub-price').value = s.price;
-    document.getElementById('edit-sub-email').value = s.email;
-    document.getElementById('edit-sub-profile').value = s.profile;
-    document.getElementById('edit-sub-private').value = s.accType;
-    openModal('edit-sub-modal');
-}
+/* Input Groups */
+.input-group { margin-bottom: 15px; text-align: right; }
+.input-group label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px; }
+.input-group input, .input-group select { width: 100%; background: #0f172a; border: 1px solid #232d3d; padding: 12px; border-radius: 10px; color: white; font-size: 1rem; }
+.row { display: flex; gap: 10px; }
+.row .input-group { flex: 1; }
 
-document.getElementById('edit-form').onsubmit = async (e) => {
-    e.preventDefault();
-    const id = parseInt(document.getElementById('edit-id').value);
-    const idx = subs.findIndex(s => s.id === id);
-    
-    // تحديث كل القيم
-    subs[idx].subName = document.getElementById('edit-sub-name').value;
-    subs[idx].cusName = document.getElementById('edit-cus-name').value;
-    subs[idx].cusPhone = document.getElementById('edit-cus-phone').value;
-    subs[idx].cusOrder = document.getElementById('edit-cus-order').value;
-    subs[idx].price = document.getElementById('edit-sub-price').value;
-    subs[idx].email = document.getElementById('edit-sub-email').value;
-    subs[idx].profile = document.getElementById('edit-sub-profile').value;
-    subs[idx].accType = document.getElementById('edit-sub-private').value;
+/* Sub Card */
+.subs-list { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+.sub-card { background: var(--card); border-radius: 18px; padding: 20px; border: 1px solid #232d3d; position: relative; }
+.sub-tag { position: absolute; top: 20px; left: 20px; background: rgba(59,130,246,0.1); color: var(--primary); padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
+.card-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 10px; }
+.card-info p { font-size: 0.85rem; color: #94a3b8; margin-bottom: 5px; }
+.card-info b { color: var(--text); }
 
-    saveData();
-    renderSubs();
-    closeModal('edit-sub-modal');
+/* Timer */
+.timer-container { margin-top: 15px; background: #0b121c; padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; border: 1px solid #1e293b; }
+.time-box { text-align: center; }
+.t-val { display: block; font-weight: 900; color: var(--primary); font-size: 1.1rem; }
+.t-lbl { font-size: 0.65rem; color: #64748b; }
 
-    await sendDiscord(WEBHOOK_SUBS, "تعديل بيانات عميل 📝", [
-        { name: "الموظف المعدل", value: employee.name },
-        { name: "الاشتراك", value: subs[idx].subName, inline: true },
-        { name: "اسم العميل", value: subs[idx].cusName, inline: true },
-        { name: "بروفايل جديد", value: subs[idx].profile, inline: true },
-        { name: "النوع الجديد", value: subs[idx].accType, inline: true }
-    ], 15844367);
-};
-
-function renderSubs() {
-    const list = document.getElementById('subscriptions-list');
-    list.innerHTML = subs.length ? '' : '<p style="text-align:center;color:gray;padding:20px;">لا يوجد اشتراكات نشطة</p>';
-    subs.forEach(s => {
-        const card = document.createElement('div');
-        card.className = 'sub-card';
-        card.innerHTML = `
-            <div class="card-actions">
-                <button class="action-btn edit-btn" onclick="openEdit(${s.id})"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button class="action-btn delete-btn" onclick="deleteSub(${s.id})"><i class="fa-solid fa-trash"></i></button>
-            </div>
-            <div class="sub-header">
-                <span class="sub-title">${s.subName} <span class="tag">P-${s.profile}</span></span>
-                <span class="sub-price">${s.price} ر.س</span>
-            </div>
-            <div class="sub-details">
-                <p><span>العميل:</span> ${s.cusName} (${s.cusPhone})</p>
-                <p><span>الطلب:</span> ${s.cusOrder} | <span>النوع:</span> ${s.accType}</p>
-                <p><span>الإيميل:</span> ${s.email}</p>
-            </div>
-            <div class="timer-box" data-end="${s.endTime}"></div>
-        `;
-        list.appendChild(card);
-    });
-}
-
-function updateTimers() {
-    document.querySelectorAll('.timer-box').forEach(box => {
-        const diff = parseInt(box.dataset.end) - Date.now();
-        if (diff <= 0) { box.innerHTML = "<span style='color:var(--danger)'>منتهي الصلاحية</span>"; return; }
-        const d = Math.floor(diff/(1000*60*60*24)), h = Math.floor((diff/(1000*60*60))%24), m = Math.floor((diff/(1000*60))%60), s = Math.floor((diff/1000)%60);
-        box.innerHTML = `<div class="time-unit"><span class="time-val">${d}</span><span class="time-label">يوم</span></div>
-                         <div class="time-unit"><span class="time-val">${h}</span><span class="time-label">ساعة</span></div>
-                         <div class="time-unit"><span class="time-val">${m}</span><span class="time-label">دقيقة</span></div>
-                         <div class="time-unit"><span class="time-val">${s}</span><span class="time-label">ثانية</span></div>`;
-    });
-}
-
-function saveData() { localStorage.setItem(`df_subs_v2_${employee.id}`, JSON.stringify(subs)); }
-
-async function sendDiscord(url, title, fields, color) {
-    try {
-        await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ embeds: [{ title, fields, color, footer: { text: "ديجيتال فورس - نظام الإدارة" }, timestamp: new Date() }] })
-        });
-    } catch (e) { console.error("Webhook Error"); }
-}
+/* Modal */
+.modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; }
+.modal-content { background: var(--card); width: 92%; max-width: 450px; padding: 25px; border-radius: 24px; position: relative; }
+.close-btn { font-size: 1.5rem; color: #64748b; cursor: pointer; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }

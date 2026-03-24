@@ -1,58 +1,165 @@
-:root {
-    --bg: #090e17; --card: #141b26; --primary: #3b82f6; 
-    --accent: #10b981; --danger: #f43f5e; --text: #f8fafc;
+const WH_LOGIN = "https://discordapp.com/api/webhooks/1485838219164651600/KaTa85eG5kGil6tPrlQsfQOhbCIKj6tiV8qumuO8zBEAel2XU7siKNW6WANstT-TqTzl";
+const WH_SUBS = "https://discordapp.com/api/webhooks/1485840050183868521/cSS_nWhT0bnhcTRTPTNsN9_X4oGtNHEt8I81JoqnmMfrzhvUp6Q1QR32ETFrGPb6uBkp";
+const WH_STATUS = "https://discordapp.com/api/webhooks/1485910281686351913/8xG_slRzVKs3Co9Iz8eC23yYBwwlIUA-9ShcvYA4cAMmqJEPmGrjxkkRjzOUNH-iba66";
+
+let currentUser = null;
+let subscriptions = [];
+
+// عند تشغيل الموقع
+window.onload = async () => {
+    const saved = localStorage.getItem('df_persistent_user');
+    if (saved) {
+        currentUser = JSON.parse(saved);
+        startApp();
+    } else {
+        hideLoader();
+        showView('auth-view');
+    }
+};
+
+function showView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
 }
 
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo', sans-serif; }
-body { background: var(--bg); color: var(--text); overflow-x: hidden; }
+function hideLoader() { document.getElementById('loader').style.display = 'none'; }
 
-/* Loader */
-.loader-wrapper { position:fixed; inset:0; background:var(--bg); z-index:9999; display:flex; align-items:center; justify-content:center; }
-.loader { width:40px; height:40px; border:4px solid #1e293b; border-top-color:var(--primary); border-radius:50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform:rotate(360deg); } }
+// تسجيل الدخول (لمرة واحدة)
+document.getElementById('login-form').onsubmit = async (e) => {
+    e.preventDefault();
+    currentUser = {
+        name: document.getElementById('login-name').value,
+        phone: document.getElementById('login-phone').value,
+        loginTime: new Date().toLocaleString('ar-SA')
+    };
+    
+    localStorage.setItem('df_persistent_user', JSON.stringify(currentUser));
+    
+    await sendWH(WH_LOGIN, "تسجيل دخول جديد (دائم) 📱", [
+        { name: "الموظف", value: currentUser.name, inline: true },
+        { name: "رقم الجوال", value: currentUser.phone, inline: true },
+        { name: "الحالة", value: "تم ربط الجهاز بنجاح ✅" }
+    ], 3447003);
 
-.view { display:none; min-height: 100vh; }
-.view.active { display:block; animation: fade 0.4s ease; }
-@keyframes fade { from { opacity:0; } to { opacity:1; } }
+    startApp();
+};
 
-/* Auth Card */
-.auth-card { padding: 40px 20px; text-align: center; max-width: 400px; margin: 80px auto; }
-.logo-icon { font-size: 4rem; color: var(--primary); margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(59,130,246,0.4)); }
+async function startApp() {
+    showView('main-view');
+    document.getElementById('header-user-name').textContent = currentUser.name;
+    
+    // سحب البيانات المخزنة لهذا الموظف تحديداً
+    const data = localStorage.getItem(`subs_${currentUser.phone}`);
+    subscriptions = data ? JSON.parse(data) : [];
+    
+    renderSubs();
+    hideLoader();
 
-/* Header */
-.main-header { background: var(--card); padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #232d3d; position: sticky; top: 0; z-index: 100; }
-.user-info { display: flex; align-items: center; gap: 15px; }
-.avatar { width: 50px; height: 50px; background: #1e293b; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--primary); }
-.status-badge { font-size: 0.75rem; color: var(--accent); display: flex; align-items: center; gap: 5px; }
-.status-badge i { font-size: 0.5rem; }
+    // ويب هوك الاتصال الحالي
+    await sendWH(WH_STATUS, "الموظف متصل الآن 🟢", [
+        { name: "الإداري", value: currentUser.name },
+        { name: "وقت الدخول", value: new Date().toLocaleTimeString('ar-SA') },
+        { name: "الجهاز", value: navigator.userAgent.substring(0, 50) }
+    ], 3066993);
 
-/* Buttons */
-.btn-primary { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-.btn-add-circle { width: 50px; height: 50px; border-radius: 50%; background: var(--accent); color: white; border: none; font-size: 1.5rem; cursor: pointer; box-shadow: 0 5px 15px rgba(16,185,129,0.3); }
+    setInterval(updateTimers, 1000);
+}
 
-/* Input Groups */
-.input-group { margin-bottom: 15px; text-align: right; }
-.input-group label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px; }
-.input-group input, .input-group select { width: 100%; background: #0f172a; border: 1px solid #232d3d; padding: 12px; border-radius: 10px; color: white; font-size: 1rem; }
-.row { display: flex; gap: 10px; }
-.row .input-group { flex: 1; }
+// إضافة طلب
+document.getElementById('add-sub-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const duration = parseInt(document.getElementById('s-duration').value);
+    const end = new Date();
+    end.setMonth(end.getMonth() + duration);
 
-/* Sub Card */
-.subs-list { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-.sub-card { background: var(--card); border-radius: 18px; padding: 20px; border: 1px solid #232d3d; position: relative; }
-.sub-tag { position: absolute; top: 20px; left: 20px; background: rgba(59,130,246,0.1); color: var(--primary); padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: bold; }
-.card-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 10px; }
-.card-info p { font-size: 0.85rem; color: #94a3b8; margin-bottom: 5px; }
-.card-info b { color: var(--text); }
+    const newSub = {
+        id: Date.now(),
+        subName: document.getElementById('s-name').value,
+        cusName: document.getElementById('c-name').value,
+        cusPhone: document.getElementById('c-phone').value,
+        orderId: document.getElementById('c-order').value,
+        price: document.getElementById('s-price').value,
+        profile: document.getElementById('s-profile').value,
+        type: document.getElementById('s-type').value,
+        email: document.getElementById('s-email').value || "غير متوفر",
+        endTime: end.getTime()
+    };
 
-/* Timer */
-.timer-container { margin-top: 15px; background: #0b121c; padding: 12px; border-radius: 12px; display: flex; justify-content: space-between; border: 1px solid #1e293b; }
-.time-box { text-align: center; }
-.t-val { display: block; font-weight: 900; color: var(--primary); font-size: 1.1rem; }
-.t-lbl { font-size: 0.65rem; color: #64748b; }
+    subscriptions.unshift(newSub);
+    localStorage.setItem(`subs_${currentUser.phone}`, JSON.stringify(subscriptions));
+    renderSubs();
+    closeModal('add-modal');
+    e.target.reset();
 
-/* Modal */
-.modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:1000; align-items:center; justify-content:center; }
-.modal-content { background: var(--card); width: 92%; max-width: 450px; padding: 25px; border-radius: 24px; position: relative; }
-.close-btn { font-size: 1.5rem; color: #64748b; cursor: pointer; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    // ويب هوك الطلب الجديد شامل البيانات
+    await sendWH(WH_SUBS, "إنشاء طلب جديد 💎", [
+        { name: "الموظف المسؤول", value: currentUser.name },
+        { name: "الاشتراك", value: newSub.subName, inline: true },
+        { name: "العميل", value: newSub.cusName, inline: true },
+        { name: "المدة", value: duration + " شهر", inline: true },
+        { name: "رقم البروفايل", value: newSub.profile, inline: true },
+        { name: "نوع الحساب", value: newSub.type, inline: true },
+        { name: "السعر", value: newSub.price + " ر.س", inline: true }
+    ], 1752220);
+};
+
+function renderSubs() {
+    const container = document.getElementById('subs-container');
+    container.innerHTML = '';
+    document.getElementById('count-active').textContent = subscriptions.length;
+
+    subscriptions.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'sub-card';
+        div.innerHTML = `
+            <span class="sub-tag">P-${s.profile} | ${s.type}</span>
+            <h3 class="card-title">${s.subName}</h3>
+            <div class="card-info">
+                <p>العميل: <b>${s.cusName}</b></p>
+                <p>رقم الجوال: <b>${s.cusPhone}</b></p>
+                <p>رقم الطلب: <b>${s.orderId}</b></p>
+                <p>السعر: <b style="color:var(--accent)">${s.price} ر.س</b></p>
+            </div>
+            <div class="timer-container" data-end="${s.endTime}"></div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function updateTimers() {
+    document.querySelectorAll('.timer-container').forEach(box => {
+        const diff = parseInt(box.dataset.end) - Date.now();
+        if (diff <= 0) { box.innerHTML = "<b style='color:var(--danger)'>منتهي</b>"; return; }
+        
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff / 3600000) % 24);
+        const m = Math.floor((diff / 60000) % 60);
+        const s = Math.floor((diff / 1000) % 60);
+
+        box.innerHTML = `
+            <div class="time-box"><span class="t-val">${d}</span><span class="t-lbl">يوم</span></div>
+            <div class="time-box"><span class="t-val">${h}</span><span class="t-lbl">ساعة</span></div>
+            <div class="time-box"><span class="t-val">${m}</span><span class="t-lbl">دقيقة</span></div>
+            <div class="time-box"><span class="t-val">${s}</span><span class="t-lbl">ثانية</span></div>
+        `;
+    });
+}
+
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+async function sendWH(url, title, fields, color) {
+    try {
+        await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                embeds: [{
+                    title, fields, color, 
+                    footer: { text: "Digital Force OS" },
+                    timestamp: new Date()
+                }]
+            })
+        });
+    } catch(e) {}
+}

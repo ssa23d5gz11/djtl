@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Force | الإدارة الذكية</title>
+    <title>Digital Force | نظام الإدارة الاحترافي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -15,20 +15,20 @@
     <section id="auth-view" class="view">
         <div class="container auth-card">
             <div class="logo-box">
-                <i class="fa-solid fa-shield-halved logo-icon"></i>
+                <i class="fa-solid fa-bolt-lightning logo-icon"></i>
                 <h1>ديجيتال فورس</h1>
-                <p>نظام إدارة الاشتراكات الموحد</p>
+                <p>سجل دخولك لمرة واحدة فقط</p>
             </div>
             <form id="login-form">
                 <div class="input-group">
-                    <label>اسم الموظف الثنائي</label>
-                    <input type="text" id="login-name" placeholder="مثلاً: سامر الأحمد" required>
+                    <label>اسمك الثنائي</label>
+                    <input type="text" id="login-name" placeholder="مثلاً: محمد علي" required>
                 </div>
                 <div class="input-group">
                     <label>رقم الجوال</label>
                     <input type="tel" id="login-phone" placeholder="05xxxxxxxx" required>
                 </div>
-                <button type="submit" class="btn-primary">تسجيل الدخول الدائم</button>
+                <button type="submit" class="btn-primary">اعتماد الجهاز والدخول</button>
             </form>
         </div>
     </section>
@@ -36,10 +36,10 @@
     <section id="main-view" class="view">
         <header class="main-header">
             <div class="user-info">
-                <div class="avatar"><i class="fa-solid fa-user-tie"></i></div>
+                <div class="avatar"><i class="fa-solid fa-user-gear"></i></div>
                 <div>
-                    <h2 id="header-user-name">...</h2>
-                    <span class="status-badge"><i class="fa-solid fa-circle"></i> متصل الآن</span>
+                    <h2 id="header-user-name">مرحباً</h2>
+                    <span class="status-badge"><i class="fa-solid fa-circle"></i> متصل بنظام ديجيتال</span>
                 </div>
             </div>
             <button class="btn-add-circle" onclick="openModal('add-modal')"><i class="fa-solid fa-plus"></i></button>
@@ -47,14 +47,9 @@
 
         <div class="container">
             <div class="stats-bar">
-                <div class="stat-item">
-                    <span id="count-active">0</span>
-                    <label>اشتراك نشط</label>
-                </div>
+                <p>إجمالي اشتراكاتك النشطة: <b id="count-active" class="highlight">0</b></p>
             </div>
-            
-            <div id="subs-container" class="subs-list">
-                </div>
+            <div id="subs-container" class="subs-list"></div>
         </div>
     </section>
 
@@ -77,16 +72,13 @@
                     <div class="input-group"><label>السعر</label><input type="number" id="s-price" step="0.01" required></div>
                     <div class="input-group"><label>المدة</label>
                         <select id="s-duration">
-                            <option value="1">شهر</option>
-                            <option value="2">شهرين</option>
-                            <option value="3">3 أشهر</option>
-                            <option value="6">6 أشهر</option>
-                            <option value="12">سنة</option>
+                            <option value="1">شهر</option><option value="2">شهرين</option>
+                            <option value="3">3 أشهر</option><option value="6">6 أشهر</option><option value="12">سنة</option>
                         </select>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="input-group"><label>البروفايل</label>
+                    <div class="input-group"><label>رقم البروفايل</label>
                         <select id="s-profile">
                             <option value="1">1</option><option value="2">2</option><option value="3">3</option>
                             <option value="4">4</option><option value="5">5</option><option value="6">6</option>
@@ -95,13 +87,12 @@
                     </div>
                     <div class="input-group"><label>نوع الحساب</label>
                         <select id="s-type">
-                            <option value="مشترك">مشترك</option>
-                            <option value="خاص">خاص</option>
+                            <option value="مشترك">مشترك</option><option value="خاص">خاص</option>
                         </select>
                     </div>
                 </div>
-                <div class="input-group"><label>الإيميل (إن وجد)</label><input type="email" id="s-email"></div>
-                <button type="submit" class="btn-primary">تأكيد العملية</button>
+                <div class="input-group"><label>الإيميل (اختياري)</label><input type="email" id="s-email"></div>
+                <button type="submit" class="btn-primary">إضافة وإرسال التقرير</button>
             </form>
         </div>
     </div>
